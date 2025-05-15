@@ -1,4 +1,4 @@
-/* Chat container */
+/* Chat container
 #chat-container {
   display: flex;
   flex-direction: column;
@@ -94,4 +94,4 @@
 #inputRow {
   display: flex;
   margin-top: 10px;
-}
+} */

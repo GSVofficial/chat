@@ -3,7 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <title>Chat App</title>
-  <link rel="stylesheet" href="public/index.css">
+  <style>
+    /* Chat container */
+#chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 600px;
+  margin: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  background: #f0f0f0;
+}
+
+/* Messages area */
+#messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;
+  background-color: #e5ddd5;
+  border-radius: 5px;
+}
+
+/* Message wrapper */
+.message {
+  display: flex;
+  flex-direction: column;
+  max-width: 75%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* Sent message */
+.sent {
+  align-self: flex-end;
+  background-color: #dcf8c6;
+  border-top-right-radius: 0;
+}
+
+/* Received message */
+.received {
+  align-self: flex-start;
+  background-color: #fff;
+  border-top-left-radius: 0;
+}
+
+/* Username styling */
+.username {
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #4a4a4a;
+  margin-bottom: 4px;
+}
+
+/* Message text */
+.text {
+  font-size: 1rem;
+  color: #202020;
+}
+
+/* Input + send button */
+#messageInput {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  flex: 1;
+  outline: none;
+}
+
+#sendBtn {
+  padding: 10px 16px;
+  margin-left: 8px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 20px;
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+}
+
+#sendBtn:hover {
+  background-color: #45a049;
+}
+
+/* Bottom input row */
+#chat-container > input,
+#chat-container > button {
+  margin-top: 10px;
+}
+#inputRow {
+  display: flex;
+  margin-top: 10px;
+}
+
+  </style>
 </head>
 <body>
   <div id="chat-container">
@@ -14,6 +113,66 @@
     </div>    
   </div>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="public/index.js"></script>
+  <script>
+    const socket = io();
+const input = document.getElementById('messageInput');
+const sendBtn = document.getElementById('sendBtn');
+const messages = document.getElementById('messages');
+
+
+let username = prompt("Enter your name:");
+if (!username) {
+  username = "Anonymous";
+}
+
+
+// Generate a random user ID for this session
+const userId = Math.random().toString(36).substr(2, 9);
+
+sendBtn.addEventListener("click", () => {
+  const msg = input.value;
+  if (msg.trim() !== "") {
+    socket.emit("chat message", { user: username, text: msg });
+    input.value = "";
+  }
+});
+
+
+socket.on("chat message", (data) => {
+  const messageWrapper = document.createElement("div");
+  messageWrapper.classList.add("message");
+
+  if (data.user === username) {
+    messageWrapper.classList.add("sent");
+  } else {
+    messageWrapper.classList.add("received");
+  }
+
+  // Username (like header)
+  const userElem = document.createElement("div");
+  userElem.classList.add("username");
+  userElem.textContent = data.user;
+
+  // Message body
+  const textElem = document.createElement("div");
+  textElem.classList.add("text");
+  textElem.textContent = data.text;
+
+  messageWrapper.appendChild(userElem);
+  messageWrapper.appendChild(textElem);
+  messages.appendChild(messageWrapper);
+  messages.scrollTop = messages.scrollHeight;
+});
+
+function addMessage(text, type) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  div.classList.add('message', type);
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+
+}
+
+  </script>
 </body>
 </html>
