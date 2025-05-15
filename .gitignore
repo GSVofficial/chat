@@ -1,0 +1,19 @@
+# Android/Java
+.gradle/
+*.iml
+/local.properties
+/.idea
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.ap_
+
+# Node
+node_modules/
+
+# OS files
+Thumbs.db
+.DS_Store
