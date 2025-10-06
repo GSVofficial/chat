@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WhatsApp Style Chat</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- Initial group screen -->
+  <div id="group-screen">
+    <h2>Create Group</h2>
+    <div id="create-group">
+      <input id="newGroupInput" placeholder="New group name">
+      <button id="createGroupBtn">+</button>
+    </div>
+
+    <h2>Join Group</h2>
+    <div id="join-groups"></div>
+  </div>
+
+  <!-- Chat screen (hidden initially) -->
+  <div id="chat-screen" style="display:none;">
+    <div id="chat-app">
+      <div id="sidebar">
+        <div id="sidebar-header">
+          <h2>Groups</h2>
+        </div>
+        <div id="groups-container">
+          <select id="groupSelectChat"></select>
+          <div id="createGroupRowChat">
+            <input id="newGroupInputChat" placeholder="New group">
+            <button id="createGroupBtnChat">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="chat-container">
+        <div id="messages"></div>
+        <div id="inputRow">
+          <input id="messageInput" placeholder="Type a message..." autocomplete="off">
+          <button id="sendBtn">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let username = prompt("Enter your name:") || "Anonymous";
+    let currentGroup = "";
+
+    const groupScreen = document.getElementById('group-screen');
+    const joinGroupsDiv = document.getElementById('join-groups');
+    const newGroupInput = document.getElementById('newGroupInput');
+    const createGroupBtn = document.getElementById('createGroupBtn');
+
+    const chatScreen = document.getElementById('chat-screen');
+    const groupSelectChat = document.getElementById('groupSelectChat');
+    const newGroupInputChat = document.getElementById('newGroupInputChat');
+    const createGroupBtnChat = document.getElementById('createGroupBtnChat');
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // Display existing groups to join
+    socket.on('update-groups', (groups) => {
+      joinGroupsDiv.innerHTML = '';
+      groupSelectChat.innerHTML = '';
+      groups.forEach(group => {
+        // Add to join groups
+        const btn = document.createElement('button');
+        btn.textContent = group;
+        btn.classList.add('join-btn');
+        btn.onclick = () => joinGroup(group);
+        joinGroupsDiv.appendChild(btn);
+
+        // Add to chat sidebar
+        const option = document.createElement('option');
+        option.value = group;
+        option.textContent = group;
+        groupSelectChat.appendChild(option);
+      });
+
+      // If user already in a group, update sidebar
+      if(currentGroup && groupSelectChat.querySelector(`option[value="${currentGroup}"]`)) {
+        groupSelectChat.value = currentGroup;
+      }
+    });
+
+    // Create new group (initial screen)
+    createGroupBtn.addEventListener('click', () => {
+      const groupName = newGroupInput.value.trim();
+      if(groupName !== '') {
+        socket.emit('create-group', groupName);
+        joinGroup(groupName);
+        newGroupInput.value = '';
+      }
+    });
+
+    // Join or create a group
+    function joinGroup(groupName) {
+      currentGroup = groupName;
+      socket.emit('join-group', groupName);
+
+      // Hide group screen, show chat screen
+      groupScreen.style.display = 'none';
+      chatScreen.style.display = 'flex';
+      messages.innerHTML = '';
+
+      // Update sidebar select
+      if(!groupSelectChat.querySelector(`option[value="${groupName}"]`)) {
+        const option = document.createElement('option');
+        option.value = groupName;
+        option.textContent = groupName;
+        groupSelectChat.appendChild(option);
+      }
+      groupSelectChat.value = groupName;
+    }
+
+    // Chat sidebar create group
+    createGroupBtnChat.addEventListener('click', () => {
+      const groupName = newGroupInputChat.value.trim();
+      if(groupName !== '') {
+        socket.emit('create-group', groupName);
+        joinGroup(groupName);
+        newGroupInputChat.value = '';
+      }
+    });
+
+    // Switch group from chat sidebar
+    groupSelectChat.addEventListener('change', () => {
+      const group = groupSelectChat.value;
+      if(group) {
+        currentGroup = group;
+        socket.emit('join-group', group);
+        messages.innerHTML = '';
+      }
+    });
+
+    // Send chat messages
+    sendBtn.addEventListener('click', () => {
+      const msg = input.value.trim();
+      if(msg !== '') {
+        socket.emit('chat message', { user: username, text: msg });
+        input.value = '';
+      }
+    });
+
+    // Receive messages
+    socket.on('chat message', (data) => {
+      const messageWrapper = document.createElement("div");
+      messageWrapper.classList.add("message", data.user === username ? "sent" : "received");
+
+      const userElem = document.createElement("div");
+      userElem.classList.add("username");
+      userElem.textContent = data.user;
+
+      const textElem = document.createElement("div");
+      textElem.classList.add("text");
+      textElem.textContent = data.text;
+
+      messageWrapper.appendChild(userElem);
+      messageWrapper.appendChild(textElem);
+      messages.appendChild(messageWrapper);
+      messages.scrollTop = messages.scrollHeight;
+    });
+
+    // Load chat history when joining a group
+    socket.on('chat message history', (history) => {
+      messages.innerHTML = '';
+      history.forEach(data => {
+        const messageWrapper = document.createElement("div");
+        messageWrapper.classList.add("message", data.user === username ? "sent" : "received");
+
+        const userElem = document.createElement("div");
+        userElem.classList.add("username");
+        userElem.textContent = data.user;
+
+        const textElem = document.createElement("div");
+        textElem.classList.add("text");
+        textElem.textContent = data.text;
+
+        messageWrapper.appendChild(userElem);
+        messageWrapper.appendChild(textElem);
+        messages.appendChild(messageWrapper);
+      });
+      messages.scrollTop = messages.scrollHeight;
+    });
+  </script>
+</body>
+</html>

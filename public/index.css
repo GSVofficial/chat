@@ -1,97 +1,214 @@
-/* Chat container
-#chat-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  max-width: 600px;
-  margin: auto;
-  border: 1px solid #ccc;
-  padding: 10px;
-  background: #f0f0f0;
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #ece5dd;
 }
 
-/* Messages area */
+/* Initial group screen */
+#group-screen {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+#group-screen h2 {
+  margin-bottom: 10px;
+}
+
+#group-screen input {
+  padding: 8px;
+  width: 70%;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  outline: none;
+}
+
+#group-screen button {
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: none;
+  background-color: #25d366;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#group-screen button:hover {
+  background-color: #128c7e;
+}
+
+#join-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.join-btn {
+  padding: 8px;
+  border-radius: 20px;
+  border: none;
+  background-color: #075e54;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.join-btn:hover {
+  background-color: #128c7e;
+}
+
+/* Chat screen */
+#chat-screen {
+  display: flex;
+  height: 100vh;
+}
+
+#chat-app {
+  display: flex;
+  flex-grow: 1;
+}
+
+/* Sidebar */
+#sidebar {
+  width: 250px;
+  background-color: #075e54;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+#sidebar-header {
+  padding: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+#groups-container {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#groups-container select, #groups-container input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+}
+
+/* Chat container */
+#chat-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #ece5dd;
+}
+
 #messages {
   flex-grow: 1;
+  padding: 10px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 10px;
-  background-color: #e5ddd5;
-  border-radius: 5px;
+  gap: 10px;
 }
 
-/* Message wrapper */
 .message {
-  display: flex;
-  flex-direction: column;
-  max-width: 75%;
-  padding: 8px 12px;
-  border-radius: 8px;
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 20px;
   word-wrap: break-word;
   line-height: 1.4;
 }
 
-/* Sent message */
 .sent {
   align-self: flex-end;
   background-color: #dcf8c6;
-  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
-/* Received message */
 .received {
   align-self: flex-start;
   background-color: #fff;
-  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
-/* Username styling */
 .username {
   font-weight: 600;
   font-size: 0.75rem;
-  color: #4a4a4a;
-  margin-bottom: 4px;
+  color: #555;
+  margin-bottom: 2px;
 }
 
-/* Message text */
 .text {
   font-size: 1rem;
-  color: #202020;
+  color: #111;
 }
 
-/* Input + send button */
-#messageInput {
+/* Input row */
+#inputRow {
+  display: flex;
   padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 20px;
+  gap: 10px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  background-color: #f0f0f0;
+}
+
+#messageInput {
   flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
   outline: none;
+  font-size: 1rem;
 }
 
 #sendBtn {
-  padding: 10px 16px;
-  margin-left: 8px;
-  font-size: 1rem;
-  border: none;
+  padding: 10px 20px;
   border-radius: 20px;
-  background-color: #4caf50;
+  border: none;
+  background-color: #25d366;
   color: white;
   cursor: pointer;
+  font-weight: bold;
 }
 
 #sendBtn:hover {
-  background-color: #45a049;
+  background-color: #128c7e;
 }
 
-/* Bottom input row */
-#chat-container > input,
-#chat-container > button {
-  margin-top: 10px;
+/* Scrollbar */
+#messages::-webkit-scrollbar {
+  width: 6px;
 }
-#inputRow {
-  display: flex;
-  margin-top: 10px;
-} */
+
+#messages::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+/* Media queries */
+@media screen and (max-width: 768px) {
+  #chat-screen {
+    flex-direction: column;
+  }
+  #sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  #groups-container select, #groups-container input {
+    width: auto;
+    flex: 1;
+  }
+}
